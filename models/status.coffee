@@ -1,35 +1,35 @@
 BaseModel = require "./base_model"
 
 module.exports = class Status extends BaseModel
-  @find: (client, id, callback) ->
-    client.query """
+  @find: (id, callback) ->
+    process.dbClient.query """
      SELECT * FROM status WHERE id = $1
     """, [id], (error, result) =>
-      callback.call new Status(client, result.rows[0]), error
+      callback.call new Status(result.rows[0]), error
 
-  @all: (client, callback) ->
-    client.query """
+  @all: (callback) ->
+    process.dbClient.query """
      SELECT * FROM status
     """, [], (error, result) =>
       statuses = []
-      statuses.push new Status(@client, attributes) for attributes in result.rows
+      statuses.push new Status(attributes) for attributes in result.rows
       callback.call statuses, error
 
   update: (callback) ->
-    @client.query """
+    process.dbClient.query """
       UPDATE status SET message = $1, updated_at = $2 WHERE id = $3
     """, [@get("message"), new Date, @get("id")], (error, result) =>
       callback.call @, error
 
   insert: (callback) ->
-    query = @client.query """
+    query = process.dbClient.query """
       INSERT INTO status (message) VALUES ($1) RETURNING id
     """, [@get("message")], (error, result) =>
       @set "id", result.rows[0].id unless error
       callback.call @, error
 
   destroy: (callback) ->
-    query = @client.query """
+    query = process.dbClient.query """
       DELETE FROM status WHERE id = $1
     """, [@get("id")], (error, result) =>
       callback.call @, error

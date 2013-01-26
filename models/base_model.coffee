@@ -1,5 +1,5 @@
 module.exports = class BaseModel
-  constructor: (@client, @attributes={}) ->
+  constructor: (@attributes={}) ->
     @fillAttributes @attributes
 
   save: (callback) ->

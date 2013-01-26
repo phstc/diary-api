@@ -2,16 +2,16 @@ express = require "express"
 http = require "http"
 path = require "path"
 pg = require "pg"
+statuses = require "./routes/statuses"
 Status = require "./models/status"
+require "./db/migrations"
 
 client = new pg.Client "tcp://diary_api:Qk9ti4Bj@localhost/diary_api"
 
 client.connect (error) ->
   throw error if error
 
-require("./db/migrations")(client)
-
-statuses = require("./routes/statuses")(client)
+process.dbClient = client
 
 app = express()
 
