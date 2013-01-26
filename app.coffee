@@ -6,12 +6,15 @@ statuses = require "./routes/statuses"
 Status = require "./models/status"
 require "./db/migrations"
 
-client = new pg.Client "tcp://diary_api:Qk9ti4Bj@localhost/diary_api"
+connectionString = "tcp://diary_api:Qk9ti4Bj@localhost/diary_api"
+# client = new pg.Client connectionString
 
-client.connect (error) ->
+# client.connect (error) ->
+  # throw error if error
+
+pg.connect connectionString, (error, client) ->
   throw error if error
-
-process.dbClient = client
+  process.dbClient = client
 
 app = express()
 
