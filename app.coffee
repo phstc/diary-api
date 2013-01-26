@@ -1,57 +1,17 @@
 express = require "express"
-routes = require "./routes"
-user = require "./routes/user"
 http = require "http"
 path = require "path"
 pg = require "pg"
+Status = require "./models/status"
 
 client = new pg.Client "tcp://diary_api:Qk9ti4Bj@localhost/diary_api"
 
 client.connect (error) ->
-  console.log error if error
+  throw error if error
 
 require("./db/migrations")(client)
 
-class BaseModel
-  constructor: (@attributes={}) ->
-    @fillAttributes @attributes
-
-  save: (callback) ->
-    if @get("id") then @update(callback) else @insert(callback)
-
-  set: (attribute, value) ->
-    @attributes[attribute] = value
-
-  get: (attribute) ->
-    @attributes[attribute]
-
-  fillAttributes: (attributes) ->
-    for attribute in attributes
-      @set attribute, attributes[attribute]
-
-class Status extends BaseModel
-  load: (callback) ->
-    client.query """
-     SELECT * FROM status WHERE id = $1
-    """, [@get("id")], (error, result) =>
-      throw error if error
-      @fillAttributes result.rows[0]
-      callback @
-
-  update: (callback) ->
-    client.query """
-      UPDATE status SET message = $1, updated_at = $2 WHERE id = $3
-    """, [@get("message"), new Date, @get("id")], (error, result) =>
-      throw error if error
-      callback @
-
-  insert: (callback) ->
-    query = client.query """
-      INSERT INTO status (message) VALUES ($1) RETURNING id
-    """, [@get("message")], (error, result) =>
-      throw error if error
-      @set "id", result.rows[0].id
-      callback @
+statuses = require("./routes/statuses")(client)
 
 app = express()
 
@@ -69,14 +29,20 @@ app.configure ->
 app.configure "development", ->
   app.use express.errorHandler()
 
-app.get "/", (req, res) ->
-   new Status(message: "Hello World").save (status) ->
-     console.log status.attributes
-     status2 = new Status(status.attributes).load (status2) ->
-       console.log(status2.attributes)
-   routes.index req, res
+# curl -i -X POST -d "message=Hello World" http://localhost:3000/statuses
+app.post "/statuses", statuses.create
 
-app.get "/users", user.list
+# curl -i -X PUT -d "message=Hello Pablo" http://localhost:3000/statuses/{id}
+app.put "/statuses/:id", statuses.update
+
+# curl -i -X GET http://localhost:3000/statuses/{id}
+app.get "/statuses/:id", statuses.show
+
+# curl -i -X GET http://localhost:3000/statuses
+app.get "/statuses", statuses.index
+
+# curl -i -X DELETE http://localhost:3000/statuses/{id}
+app.delete "/statuses/:id", statuses.destroy
 
 (http.createServer app).listen app.get("port"), ->
   console.log "Express server listening on port #{app.get("port")}"
