@@ -1,0 +1,16 @@
+#!/usr/bin/env node
+
+var util    = require("util")
+  , request = require("superagent");
+
+// curl -i -X POST -d "message=Hello World" http://localhost:3000/statuses
+
+var message = process.argv[2];
+
+request
+  .post("http://localhost:3000/statuses")
+  .send({ message: message })
+  .set("Accept", "application/json")
+  .end(function(res){
+     console.log("Status: " + res.status + "\nBody: " + util.inspect(res.body));
+  });

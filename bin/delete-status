@@ -1,0 +1,15 @@
+#!/usr/bin/env node
+
+var util    = require("util")
+  , request = require("superagent");
+
+// curl -i -X DELETE http://localhost:3000/statuses/{id}
+
+var id = process.argv[2];
+
+request
+  .del("http://localhost:3000/statuses/" + id)
+  .set("Accept", "application/json")
+  .end(function(res){
+     console.log("Status: " + res.status + "\nBody: " + util.inspect(res.body));
+  });

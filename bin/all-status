@@ -1,0 +1,13 @@
+#!/usr/bin/env node
+
+var util    = require("util")
+  , request = require("superagent");
+
+// curl -i -X GET http://localhost:3000/statuses
+
+request
+  .get("http://localhost:3000/statuses/")
+  .set("Accept", "application/json")
+  .end(function(res){
+     console.log("Status: " + res.status + "\nBody: " + util.inspect(res.body));
+  });
