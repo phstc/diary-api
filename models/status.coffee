@@ -1,7 +1,5 @@
 BaseModel = require "./base_model"
 
-class RecordNotFound extends Error
-
 module.exports = class Status extends BaseModel
   @find: (id, callback) ->
     process.dbClient.query """
