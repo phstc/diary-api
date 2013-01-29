@@ -8,7 +8,7 @@ module.exports = class Status extends BaseModel
      SELECT * FROM status WHERE id = $1
     """, [id], (error, result) =>
       status = new Status(result.rows[0]) if result.rows[0]
-      callback.call null, status, error
+      callback status, error
 
   @all: (callback) ->
     process.dbClient.query """
@@ -16,24 +16,24 @@ module.exports = class Status extends BaseModel
     """, [], (error, result) =>
       statuses = []
       statuses.push new Status(attributes) for attributes in result.rows
-      callback.call null, statuses, error
+      callback statuses, error
 
   update: (callback) ->
     process.dbClient.query """
       UPDATE status SET message = $1, updated_at = $2 WHERE id = $3
     """, [@get("message"), new Date, @get("id")], (error, result) =>
-      callback.call null, @, error
+      callback @, error
 
   insert: (callback) ->
     query = process.dbClient.query """
       INSERT INTO status (message) VALUES ($1) RETURNING id
     """, [@get("message")], (error, result) =>
       @set "id", result.rows[0].id unless error
-      callback.call null, @, error
+      callback @, error
 
   destroy: (callback) ->
     query = process.dbClient.query """
       DELETE FROM status WHERE id = $1
     """, [@get("id")], (error, result) =>
-      callback.call null, @, error
+      callback @, error
 
