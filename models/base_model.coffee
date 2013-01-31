@@ -3,7 +3,7 @@ module.exports = class BaseModel
     @fillAttributes @attributes
 
   save: (callback) ->
-    if @get("id") then @update(callback) else @insert(callback)
+    if @get("id") then @update(callback) else @create(callback)
 
   set: (attribute, value) ->
     @attributes[attribute] = value

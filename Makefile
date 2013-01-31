@@ -12,4 +12,8 @@ compile:
 test-unit:
 	./node_modules/.bin/mocha $(TESTS) --reporter list --compilers coffee:coffee-script
 
+server:
+	supervisor coffee app.coffee
+
+
 .PHONY: test-unit test compile

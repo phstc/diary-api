@@ -5,7 +5,7 @@ module.exports = class Status extends BaseModel
     process.dbClient.query """
      SELECT * FROM status WHERE id = $1
     """, [id], (error, result) =>
-      status = new Status(result.rows[0]) if result.rows[0]
+      status = new Status(result.rows[0]) if result? && result.rows[0]
       callback status, error
 
   @all: (callback) ->
@@ -22,7 +22,7 @@ module.exports = class Status extends BaseModel
     """, [@get("message"), new Date, @get("id")], (error, result) =>
       callback @, error
 
-  insert: (callback) ->
+  create: (callback) ->
     query = process.dbClient.query """
       INSERT INTO status (message) VALUES ($1) RETURNING id
     """, [@get("message")], (error, result) =>
