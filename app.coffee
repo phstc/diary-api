@@ -1,16 +1,10 @@
 express = require "express"
-http = require "http"
 path = require "path"
 pg = require "pg"
 statuses = require "./routes/statuses"
-Status = require "./models/status"
 require "./db/migrations"
 
 connectionString = "tcp://diary_api:Qk9ti4Bj@localhost/diary_api"
-# client = new pg.Client connectionString
-
-# client.connect (error) ->
-  # throw error if error
 
 pg.connect connectionString, (error, client) ->
   throw error if error
@@ -47,6 +41,5 @@ app.get "/statuses", statuses.index
 # curl -i -X DELETE http://localhost:3000/statuses/{id}
 app.delete "/statuses/:id", statuses.destroy
 
-(http.createServer app).listen app.get("port"), ->
-  console.log "Express server listening on port #{app.get("port")}"
+module.exports = app
 

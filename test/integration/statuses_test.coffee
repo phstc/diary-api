@@ -1,20 +1,19 @@
 process.env.NODE_ENV = "test"
+process.env.PORT = 3001
 
-pg = require "pg"
-connectionString = "tcp://diary_api:Qk9ti4Bj@localhost/diary_api"
-pg.connect connectionString, (error, client) ->
-  throw error if error
-  process.dbClient = client
-
+http = require "http"
+request = require "superagent"
+app = require "../../app"
 Status = require "../../models/status"
 
-request = require "superagent"
-
 describe "#statuses", ->
+  before (done) ->
+    (http.createServer app).listen app.get("port"), done
+
   describe "#create", ->
     it "creates successfully", (done) ->
       request
-        .post("http://localhost:3000/statuses")
+        .post("http://localhost:3001/statuses")
         .send(message: "Hello World")
         .set("Accept", "application/json")
         .end (res) ->
@@ -24,7 +23,7 @@ describe "#statuses", ->
 
     it "rejects when message is not present", (done) ->
       request
-        .post("http://localhost:3000/statuses")
+        .post("http://localhost:3001/statuses")
         .set("Accept", "application/json")
         .end (res) ->
           res.body.should.eql {}
@@ -36,7 +35,7 @@ describe "#statuses", ->
       status = new Status message: "Hello World"
       status.save (result, error) ->
         request
-          .put("http://localhost:3000/statuses/#{result.attributes.id}")
+          .put("http://localhost:3001/statuses/#{result.attributes.id}")
           .send(message: "Hello again")
           .set("Accept", "application/json")
           .end (res) ->
@@ -48,7 +47,7 @@ describe "#statuses", ->
       status = new Status message: "Hello World"
       status.save (result, error) ->
         request
-          .put("http://localhost:3000/statuses/#{result.attributes.id}")
+          .put("http://localhost:3001/statuses/#{result.attributes.id}")
           .set("Accept", "application/json")
           .end (res) ->
             res.body.should.eql {}
@@ -60,7 +59,7 @@ describe "#statuses", ->
       status = new Status message: "Hello World"
       status.save (result, error) ->
         request
-          .del("http://localhost:3000/statuses/#{result.attributes.id}")
+          .del("http://localhost:3001/statuses/#{result.attributes.id}")
           .set("Accept", "application/json")
           .end (res) ->
             res.body.should.eql {}
@@ -69,7 +68,7 @@ describe "#statuses", ->
 
     it "rejects when not found", (done) ->
       request
-        .del("http://localhost:3000/statuses/999999999999")
+        .del("http://localhost:3001/statuses/999999999999")
         .set("Accept", "application/json")
         .end (res) ->
           res.body.should.eql {}
